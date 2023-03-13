@@ -1,28 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    public int levelID;
-    private float nextUpdate = 0f;
-    public GameObject mainCamera;
     public static GameManager instance;
-    public GameObject[] pauseObjects;
-    public GameObject[] resumeObjects;
-    public Image[] health;
-    public Sprite heart;
-    public Sprite lostHealth;
     public GameObject WinMenu;
     public GameObject DeathMenu;
+    public GameObject[] pauseObjects;
+    public GameObject[] resumeObjects;
     private bool isPaused = false;
-    //public AudioSource Music;
-    //public AudioClip VictoryJingle;
     private bool isFinished = false;
+    public float gold = 10;
+    public TextMeshProUGUI goldIndicator;
 
     private void Start()
     {
@@ -32,28 +25,7 @@ public class GameManager : MonoBehaviour
         {
             //Define instance for easy access later
             instance = this;
-        } else
-        {
-            if (instance.isPaused)
-            {
-                //Game last ended while paused, delete instance as they left the match to go to main menu
-                Destroy(instance);
-                instance = this;
-            }
-            else
-            //Check if we're on same level, no need to reset if we are, but if we are on a different level, we do need to reset
-            if (levelID != instance.levelID)
-            {
-                //This is a different level, IF we have stuff to carry between levels, define here
-                Destroy(instance);
-                instance = this;
-            }
-            else
-            {
-                Destroy(this);
-            }
         }
-
         isPaused = false;
         //Toggle menu to correct states
         if (pauseObjects.Length > 0)
@@ -71,47 +43,17 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        nextUpdate = Time.time + 1f;
-
         WinMenu.SetActive(false);
         DeathMenu.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-
         if (Input.GetButtonDown("Cancel") && !isFinished)
         {
             togglePause();
         }
-        //Dont fire anything after this
-        if (isPaused) { return; }
-        /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-             * Below this line is paused when pause script is ran *
-         *-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
-        if (Time.time > nextUpdate)
-        {
-            nextUpdate += 1;
-        }
-    }
-
-    public void finishLevel()
-    {
-        //Music.Stop();
-        //Show win menu
-        WinMenu.SetActive(true);
-        isFinished = true;
-        isPaused = false;
-        togglePause();
-        //Music.PlayOneShot(VictoryJingle);
-        if (pauseObjects.Length > 0)
-        {
-            foreach (GameObject obj in pauseObjects)
-            {
-                obj.SetActive(false);
-            }
-        }
+        goldIndicator.text = gold + "";
     }
 
     public void Reset()
@@ -122,7 +64,17 @@ public class GameManager : MonoBehaviour
 
     public void Death()
     {
+
         DeathMenu.SetActive(true);
+        togglePause();
+        //Music.PlayOneShot(VictoryJingle);
+        if (pauseObjects.Length > 0)
+        {
+            foreach (GameObject obj in pauseObjects)
+            {
+                obj.SetActive(false);
+            }
+        }
     }
 
     public void switchScenes(string scene)
@@ -145,9 +97,9 @@ public class GameManager : MonoBehaviour
         }
         isPaused = !isPaused;
         //Update all pause/unpause objects
-        if(pauseObjects.Length > 0)
+        if (pauseObjects.Length > 0)
         {
-            foreach(GameObject obj in pauseObjects)
+            foreach (GameObject obj in pauseObjects)
             {
                 obj.SetActive(isPaused);
             }
@@ -161,12 +113,31 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public int timerDecrment(int timer)
+    public void finishLevel()
     {
-        if (Time.time > nextUpdate)
+        //Music.Stop();
+        //Show win menu
+        WinMenu.SetActive(true);
+        isFinished = true;
+        isPaused = false;
+        togglePause();
+        //Music.PlayOneShot(VictoryJingle);
+        if (pauseObjects.Length > 0)
         {
-            return timer -= 1;
+            foreach (GameObject obj in pauseObjects)
+            {
+                obj.SetActive(false);
+            }
         }
-        else return timer;
+    }
+
+    public void incrementGold(int amount)
+    {
+        gold += amount;
+    }
+
+    public void spawnTower(GameObject Tower)
+    {
+        Instantiate(Tower, transform.position, Quaternion.identity);
     }
 }
