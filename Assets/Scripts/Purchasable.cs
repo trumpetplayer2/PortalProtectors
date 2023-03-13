@@ -11,6 +11,7 @@ public class Purchasable : MonoBehaviour
     SpriteRenderer spriteRenderer;
     public Color baseColor;
     public Color selectedColor;
+    bool selected = false;
     private void Start()
     {
         originalPosition = transform.position;
@@ -37,11 +38,15 @@ public class Purchasable : MonoBehaviour
 
     private void FollowMouse()
     {
-        if (Input.GetButton("Fire1") && Vector2.Distance(transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition)) < size)
+        if (Input.GetButtonDown("Fire1") && Vector2.Distance(transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition)) < size)
+        {
+            spriteRenderer.color = selectedColor;
+            selected = true;
+        }
+        if (selected)
         {
             transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             transform.position = new Vector3(transform.position.x, transform.position.y, 0);
-            spriteRenderer.color = selectedColor;
         }
         if (Input.GetButtonUp("Fire1") && Vector2.Distance(transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition)) < size)
         {
@@ -55,6 +60,7 @@ public class Purchasable : MonoBehaviour
 
             transform.position = originalPosition;
             spriteRenderer.color = baseColor;
+            selected = false;
         }
     }
 
