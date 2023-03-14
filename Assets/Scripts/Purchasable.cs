@@ -11,22 +11,30 @@ public class Purchasable : MonoBehaviour
     SpriteRenderer spriteRenderer;
     public Color baseColor;
     public Color selectedColor;
+    public Color invalidLocation;
+    public LayerMask mask;
     bool selected = false;
+    AudioSource sfxSource;
+    public AudioClip sfxPlace;
+    public AudioClip sfxNeedMoney;
     private void Start()
     {
         originalPosition = transform.position;
-        spriteRenderer = this.GetComponent<SpriteRenderer>();
+        spriteRenderer = this.gameObject.GetComponent<SpriteRenderer>();
+        sfxSource = this.gameObject.GetComponent<AudioSource>();
     }
     public bool purchase(Transform position)
     {
         if(GameManager.instance.gold < cost)
         {
+            sfxSource.PlayOneShot(sfxNeedMoney);
             return false;
         }
         else
         {
             Instantiate(tower, position.position, Quaternion.identity);
             GameManager.instance.gold -= cost;
+            sfxSource.PlayOneShot(sfxPlace);
         }
         return true;
     }
@@ -46,18 +54,33 @@ public class Purchasable : MonoBehaviour
         if (selected)
         {
             transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            transform.position = new Vector3(transform.position.x, transform.position.y, 0);
+            transform.position = new Vector3(Mathf.FloorToInt(transform.position.x) + 0.5f, Mathf.FloorToInt(transform.position.y) + 0.5f, 0);
+            Collider2D hit = Physics2D.OverlapCircle(transform.position, .45f, mask);
+            if (hit != null)
+            {
+                spriteRenderer.color = invalidLocation;
+                Debug.DrawLine(transform.position, hit.transform.position, Color.red);
+            }
+            else
+            {
+                spriteRenderer.color = selectedColor;
+            }
         }
         if (Input.GetButtonUp("Fire1") && Vector2.Distance(transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition)) < size)
         {
-            //Check if the location is valid
-
             //Place snapped to grid
             transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             transform.position = new Vector3(Mathf.FloorToInt(transform.position.x) + 0.5f, Mathf.FloorToInt(transform.position.y) + 0.5f, 0);
 
-            purchase(transform);
-
+            Collider2D hit = Physics2D.OverlapCircle(transform.position, 0.45f, mask);
+            if (hit == null)
+            {
+                purchase(transform);
+            }
+            else
+            {
+                sfxSource.PlayOneShot(sfxNeedMoney);
+            }
             transform.position = originalPosition;
             spriteRenderer.color = baseColor;
             selected = false;

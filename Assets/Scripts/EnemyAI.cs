@@ -15,35 +15,50 @@ public class EnemyAI : Entity
     public bool move = true;
     public Animator anim;
     public LayerMask filter;
+    public int cost;
+    public int minWave;
+    bool inBattle = false;
+
+    private void Awake()
+    {
+        next = GameManager.instance.startLocation;
+    }
     void Update()
     {
-        //Check if tower nearby
-        TowerCheck();
-        if (move)
+        if (health > 0)
         {
-            float distance = speed * Time.deltaTime;
-            transform.position = Vector3.MoveTowards(transform.position, next.gameObject.transform.position, distance);
-            if (Vector2.Distance(transform.position, next.transform.position) < 0.1)
+            //Check if tower nearby
+            TowerCheck();
+            if (move)
             {
-                if (next.next != null)
+                float distance = speed * Time.deltaTime;
+                transform.position = Vector3.MoveTowards(transform.position, next.gameObject.transform.position, distance);
+                if (Vector2.Distance(transform.position, next.transform.position) < 0.1)
                 {
-                    next = next.next;
+                    if (next.next != null)
+                    {
+                        next = next.next;
+                    }
+                    else
+                    {
+                        Destroy(this);
+                    }
                 }
-                else
+            }
+            else
+            {
+                //Attacking
+                if (attackCooldown <= Time.time)
                 {
-                    Destroy(this);
+                    attackCooldown = Time.time + attackSpeed;
+                    //Attack
+                    attack();
                 }
             }
         }
         else
         {
-            //Attacking
-            if(attackCooldown <= Time.time)
-            {
-                attackCooldown = Time.time + attackSpeed;
-                //Attack
-                attack();
-            }
+            this.gameObject.transform.Rotate(Vector3.forward * 100 * Time.deltaTime);
         }
     }
 
@@ -56,13 +71,17 @@ public class EnemyAI : Entity
             if(hit.tag == "Tower")
             {
                 temp = false;
+                if(inBattle == false)
+                {
+                    attackCooldown = Time.time + attackSpeed;
+                }
             }
-            Debug.Log(hit.name + " Has tag of " + hit.tag);
         }
         move = temp;
         if(anim != null)
         {
             anim.SetBool("Walking", move);
+            inBattle = !move;
         }
     }
 
@@ -81,8 +100,12 @@ public class EnemyAI : Entity
         }
     }
 
+    protected override void Die()
+    {
+        Destroy(this.gameObject, 0.5f);
+    }
     private void OnDestroy()
     {
-        GameManager.instance.incrementGold(Mathf.FloorToInt((attackDamage + _speed) / 2));
+        GameManager.instance.incrementGold(Mathf.FloorToInt((attackDamage + _speed)));
     }
 }

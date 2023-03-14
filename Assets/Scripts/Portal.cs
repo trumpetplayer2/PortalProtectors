@@ -31,10 +31,15 @@ public class Portal : Entity
             //Summon a Particle system
 
             //Death
-            GameManager.instance.Death();
+            Invoke("Die", 0.5f);
         }
     }
 
+
+    protected override void Die()
+    {
+        GameManager.instance.Death();
+    }
 
     public float getHealthNormalized()
     {

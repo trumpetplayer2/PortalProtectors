@@ -16,6 +16,10 @@ public class GameManager : MonoBehaviour
     private bool isFinished = false;
     public float gold = 10;
     public TextMeshProUGUI goldIndicator;
+    public PathScript startLocation;
+    AudioSource sfxSource;
+    public AudioClip sfxWin;
+    public AudioClip sfxLose;
 
     private void Start()
     {
@@ -42,7 +46,10 @@ public class GameManager : MonoBehaviour
                 obj.SetActive(true);
             }
         }
-
+        if (this.GetComponent<AudioSource>() != null)
+        {
+            sfxSource = this.GetComponent<AudioSource>();
+        }
         WinMenu.SetActive(false);
         DeathMenu.SetActive(false);
     }
@@ -64,7 +71,8 @@ public class GameManager : MonoBehaviour
 
     public void Death()
     {
-
+        sfxSource.Stop();
+        playSfx(sfxLose);
         DeathMenu.SetActive(true);
         togglePause();
         //Music.PlayOneShot(VictoryJingle);
@@ -113,9 +121,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
     public void finishLevel()
     {
-        //Music.Stop();
+        sfxSource.Stop();
+        playSfx(sfxWin);
         //Show win menu
         WinMenu.SetActive(true);
         isFinished = true;
@@ -139,5 +149,13 @@ public class GameManager : MonoBehaviour
     public void spawnTower(GameObject Tower)
     {
         Instantiate(Tower, transform.position, Quaternion.identity);
+    }
+
+    public void playSfx(AudioClip sfx)
+    {
+        if (sfx != null && sfxSource != null)
+        {
+            sfxSource.PlayOneShot(sfx);
+        }
     }
 }
