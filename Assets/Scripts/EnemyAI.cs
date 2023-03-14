@@ -6,6 +6,7 @@ public class EnemyAI : Entity
 {
     public PathScript next;
     public float speed;
+    float baseSpeed;
     public float attackDamage;
     public float attackSpeed;
     private float attackCooldown;
@@ -18,10 +19,12 @@ public class EnemyAI : Entity
     public int cost;
     public int minWave;
     bool inBattle = false;
+    public bool isSlowed = false;
 
     private void Awake()
     {
         next = GameManager.instance.startLocation;
+        baseSpeed = speed;
     }
     void Update()
     {
@@ -107,5 +110,19 @@ public class EnemyAI : Entity
     private void OnDestroy()
     {
         GameManager.instance.incrementGold(Mathf.FloorToInt((attackDamage + _speed)));
+    }
+
+    public void lowerSpeed(float mult, float time)
+    {
+        if (isSlowed) { return; }
+        speed = speed * mult;
+        isSlowed = true;
+        Invoke("resetSpeed", time);
+    }
+
+    public void resetSpeed()
+    {
+        speed = baseSpeed;
+        isSlowed = false;
     }
 }

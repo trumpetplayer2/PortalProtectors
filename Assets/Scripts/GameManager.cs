@@ -71,7 +71,6 @@ public class GameManager : MonoBehaviour
 
     public void Death()
     {
-        sfxSource.Stop();
         playSfx(sfxLose);
         DeathMenu.SetActive(true);
         togglePause();
@@ -124,7 +123,6 @@ public class GameManager : MonoBehaviour
 
     public void finishLevel()
     {
-        sfxSource.Stop();
         playSfx(sfxWin);
         //Show win menu
         WinMenu.SetActive(true);

@@ -31,12 +31,13 @@ public class MenuScript : MonoBehaviour
     //Exit the game
     public void Exit()
     {
-        Invoke("quitDelay", 0.5f);
+        Application.Quit();
+        
     }
 
     private void quitDelay()
     {
-        Application.Quit();
+        Invoke("Exit", 0.5f);
     }
 
     public void playSfx(AudioClip sfx)

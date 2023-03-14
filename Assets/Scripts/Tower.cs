@@ -11,12 +11,12 @@ public class Tower : Entity
     public LayerMask filter;
     public GameObject healthBar;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         cooldown = Time.time + attackSpeed;
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         if (cooldown < Time.time)
         {
@@ -26,7 +26,7 @@ public class Tower : Entity
         healthBar.transform.localScale = new Vector3(Mathf.Clamp(health/maxHealth, 0, 1), healthBar.transform.localScale.y, healthBar.transform.localScale.z);
     }
 
-    void checkForEnemies()
+    protected virtual void checkForEnemies()
     {
         Collider2D[] collisions = Physics2D.OverlapCircleAll(transform.position, attackRadius, filter);
         if (collisions == null) { return; }

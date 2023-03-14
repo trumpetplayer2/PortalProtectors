@@ -7,7 +7,7 @@ public class Entity : MonoBehaviour
     public float maxHealth = 1;
     public Color damageFlash;
     Color defaultColor;
-    SpriteRenderer spriteRenderer;
+    protected SpriteRenderer spriteRenderer;
     private float _health;
     public AudioClip sfxHurt;
     public AudioClip sfxDie;
@@ -17,11 +17,14 @@ public class Entity : MonoBehaviour
         get { return _health; }
         set
         {
-            _health = value;
-            Hurt();
-            if(_health <= 0)
+            if (value != _health)
             {
-                Die();
+                _health = value;
+                Hurt();
+                if (_health <= 0)
+                {
+                    Die();
+                }
             }
         }
     }

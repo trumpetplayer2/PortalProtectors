@@ -14,6 +14,7 @@ public class EnemySpawner : MonoBehaviour
     public TextMeshProUGUI waveIndicator;
     private float nextSpawn;
     public float timeBetweenSpawns;
+    bool ready = true;
 
     private void Start()
     {
@@ -29,9 +30,10 @@ public class EnemySpawner : MonoBehaviour
 
     private void WaveHandler()
     {
-        if(Gold.Length < Wave + 1)
+        if(Gold.Length < Wave + 1 && ready)
         {
             GameManager.instance.finishLevel();
+            ready = false;
             return;
         }
         if(Gold[Wave] > 0)
@@ -46,15 +48,33 @@ public class EnemySpawner : MonoBehaviour
         }
         else
         {
-            //No more gold, enable next wave button
-            StartWave.gameObject.SetActive(true);
+            if (ready)
+            {
+                //No more gold, enable next wave button
+                StartWave.gameObject.SetActive(true);
+                ready = false;
+            }
         }
     }
 
     public void nextWave()
     {
-        Wave += 1;
         StartWave.gameObject.SetActive(false);
+        if(GameObject.FindGameObjectsWithTag("Enemy").Length > 0)
+        {
+            //No ending wave early, wait a second before showing the button again
+            Invoke("showWave", 1);
+        }
+        else
+        {
+            Wave += 1;
+            ready = true;
+        }
+    }
+
+    public void showWave()
+    {
+        StartWave.gameObject.SetActive(true);
     }
 
     void attemptSpawn()
